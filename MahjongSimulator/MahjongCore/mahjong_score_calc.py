@@ -2,6 +2,7 @@
 from copy import deepcopy
 from mahjong_tile import Tile
 
+
 class WinCalc:
     @staticmethod
     def is_fulfilled(hand34, final_tile):
@@ -25,10 +26,10 @@ class WinCalc:
         hand_total_set = set(hand_total)
         res = []
         if all(hand_total.count(t) == 2 for t in hand_total_set) and len(hand_total) == 14:
-             res.append([[t]*2 for t in hand_total_set])
+            res.append([[t] * 2 for t in hand_total_set])
 
         if all(t in hand_total for t in Tile.ONENINE) and all(t in Tile.ONENINE for t in hand_total):
-            return [[[t]*hand_total.count(t) for t in Tile.ONENINE]]
+            return [[[t] * hand_total.count(t) for t in Tile.ONENINE]]
 
         hand_total.sort()
         hand_man = [t for t in hand_total if t < 9]
@@ -56,12 +57,14 @@ class WinCalc:
 
     @staticmethod
     def fan_check(hand_partition, final_tile, melds, minkan, ankan, player_wind, round_wind):
-        f, fd, m, md = WinCalc.fan_calc_long_para(hand_partition, final_tile, melds, minkan, ankan, False, player_wind, round_wind, False)
+        f, fd, m, md = WinCalc.fan_calc_long_para(hand_partition, final_tile, melds, minkan, ankan, False, player_wind,
+                                                  round_wind, False)
         return f > 0 or m > 0
 
     @staticmethod
     def cal_richii_fans(hand_partition, final_tile, melds, minkan, ankan, player_wind, round_wind):
-        f, fd, m, md = WinCalc.fan_calc_long_para(hand_partition, final_tile, melds, minkan, ankan, False, player_wind, round_wind, True)
+        f, fd, m, md = WinCalc.fan_calc_long_para(hand_partition, final_tile, melds, minkan, ankan, False, player_wind,
+                                                  round_wind, True)
         if m > 0:
             return 12
         else:
@@ -121,57 +124,58 @@ class WinCalc:
             return None
 
         tiles_set = set(tiles)
-        partition = [[t]*tiles.count(t) for t in tiles_set]
+        partition = [[t] * tiles.count(t) for t in tiles_set]
 
         return [partition] if len(partition) == (len(tiles) - 1) // 3 + 1 else None
 
     @staticmethod
     def cal_points(f, b, is_dealer, is_zimo):
-            if f == 0:
-                return 0, ''
-            elif f < 5:
-                if (b >= 40 and f >= 4) or (b >= 70 and f >= 3):
-                    if is_dealer:
-                        return 12000, "満貫4000点∀" if is_zimo else "満貫12000点"
-                    else:
-                        return 8000, "満貫2000-4000点" if is_zimo else "満貫8000点"
-                base_score = b * (2 ** (f + 2))
-                if is_zimo:
-                    if is_dealer:
-                        each = ((base_score * 2 - 1) // 100 + 1) * 100
-                        return each*3, "{}符{}飜{}点∀".format(b, f, each)
-                    else:
-                        dscore = ((base_score * 2 - 1) // 100 + 1) * 100
-                        xscore = ((base_score - 1) // 100 + 1) * 100
-                        return dscore + 2 * xscore, "{}符{}飜{}-{}点".format(b, f, xscore, dscore)
-                else:
-                    score = ((base_score * 6 - 1) // 100 + 1) * 100 if is_dealer else ((base_score * 4 - 1) // 100 + 1) * 100
-                    return score, "{}符{}飜{}点".format(b, f, score)
-            elif f == 5:
+        if f == 0:
+            return 0, ''
+        elif f < 5:
+            if (b >= 40 and f >= 4) or (b >= 70 and f >= 3):
                 if is_dealer:
                     return 12000, "満貫4000点∀" if is_zimo else "満貫12000点"
                 else:
                     return 8000, "満貫2000-4000点" if is_zimo else "満貫8000点"
-            elif 6 <= f <= 7:
+            base_score = b * (2 ** (f + 2))
+            if is_zimo:
                 if is_dealer:
-                    return 18000, "跳满6000点∀" if is_zimo else "跳满18000点"
+                    each = ((base_score * 2 - 1) // 100 + 1) * 100
+                    return each * 3, "{}符{}飜{}点∀".format(b, f, each)
                 else:
-                    return 12000, "跳满3000-6000点" if is_zimo else "跳满12000点"
-            elif 8 <= f <= 10:
-                if is_dealer:
-                    return 24000, "倍满8000点∀" if is_zimo else "倍满24000点"
-                else:
-                    return 16000, "倍满4000-8000点" if is_zimo else "倍满16000点"
-            elif 11 <= f <= 12:
-                if is_dealer:
-                    return 36000, "三倍满12000点∀" if is_zimo else "三倍满36000点"
-                else:
-                    return 24000, "三倍满6000-12000点" if is_zimo else "三倍满24000点"
+                    dscore = ((base_score * 2 - 1) // 100 + 1) * 100
+                    xscore = ((base_score - 1) // 100 + 1) * 100
+                    return dscore + 2 * xscore, "{}符{}飜{}-{}点".format(b, f, xscore, dscore)
             else:
-                if is_dealer:
-                    return 48000, "役满16000点∀" if is_zimo else "役满48000点"
-                else:
-                    return 32000, "役满8000-16000点" if is_zimo else "役满32000点"
+                score = ((base_score * 6 - 1) // 100 + 1) * 100 if is_dealer else ((
+                                                                                               base_score * 4 - 1) // 100 + 1) * 100
+                return score, "{}符{}飜{}点".format(b, f, score)
+        elif f == 5:
+            if is_dealer:
+                return 12000, "満貫4000点∀" if is_zimo else "満貫12000点"
+            else:
+                return 8000, "満貫2000-4000点" if is_zimo else "満貫8000点"
+        elif 6 <= f <= 7:
+            if is_dealer:
+                return 18000, "跳满6000点∀" if is_zimo else "跳满18000点"
+            else:
+                return 12000, "跳满3000-6000点" if is_zimo else "跳满12000点"
+        elif 8 <= f <= 10:
+            if is_dealer:
+                return 24000, "倍满8000点∀" if is_zimo else "倍满24000点"
+            else:
+                return 16000, "倍满4000-8000点" if is_zimo else "倍满16000点"
+        elif 11 <= f <= 12:
+            if is_dealer:
+                return 36000, "三倍满12000点∀" if is_zimo else "三倍满36000点"
+            else:
+                return 24000, "三倍满6000-12000点" if is_zimo else "三倍满24000点"
+        else:
+            if is_dealer:
+                return 48000, "役满16000点∀" if is_zimo else "役满48000点"
+            else:
+                return 32000, "役满8000-16000点" if is_zimo else "役满32000点"
 
     @staticmethod
     def score_calc_long_para(hand34, final_tile, melds, minkan, ankan, is_zimo, player_wind, round_wind,
@@ -205,8 +209,10 @@ class WinCalc:
             return "Final tiles: {} | {}, Win tile: {}".format(h_str, m_str, f_str)
 
         for p in win_parse:
-            base, base_desc = WinCalc.base_calc_long_para(p, final_tile, melds, minkan, ankan, is_zimo, player_wind, round_wind)
-            fan, fan_desc, maxi, maxi_desc = WinCalc.fan_calc_long_para(p, final_tile, melds, minkan, ankan, is_zimo, player_wind, round_wind, reach)
+            base, base_desc = WinCalc.base_calc_long_para(p, final_tile, melds, minkan, ankan, is_zimo, player_wind,
+                                                          round_wind)
+            fan, fan_desc, maxi, maxi_desc = WinCalc.fan_calc_long_para(p, final_tile, melds, minkan, ankan, is_zimo,
+                                                                        player_wind, round_wind, reach)
             if fan == 0 and maxi == 0:
                 continue
             fan += bonus
@@ -246,7 +252,7 @@ class WinCalc:
             if len(chows) == 4 and pair[0] not in Tile.THREES + [player_wind, round_wind]:
                 chows_with_final = [chow for chow in chows if final_tile in chow]
                 if any((chw[0] == final_tile and chw[0] % 9 != 6) or (chw[2] == final_tile and chw[2] % 9 != 2)
-                           for chw in chows_with_final):
+                       for chw in chows_with_final):
                     if is_zimo and len(melds) == 0:
                         return 20, "Calc 符: 門前清自摸和 平和 计20符"
                     if not is_zimo and len(melds) > 0:
@@ -433,7 +439,8 @@ class WinCalc:
 
         def check_all19():
             # 混老頭(2飜)
-            all_19pons = len_total == len([m for m in all_melds if len(m) > 1 and m[0] == m[1] and m[0] in Tile.ONENINE])
+            all_19pons = len_total == len(
+                [m for m in all_melds if len(m) > 1 and m[0] == m[1] and m[0] in Tile.ONENINE])
             # 純全帯幺九
             pure_all_19 = len_total == 5 == len([m for m in all_melds if any(t in Tile.TERMINALS for t in m)])
             # these four types can not be counted at the same time, only one of them is counted
@@ -529,26 +536,26 @@ class WinCalc:
                             add_maxi(1, "九蓮宝燈(役満) ")
                             break
 
-        check_all_single_one_nine()       # 国士無双(役満)
-        check_seven_pairs()               # 七対子(2飜)
-        check_win_type()                  # 立直(1飜) 門前清自摸和(1飜)
-        check_dori()                      # 役牌(1飜) 場風(1飜) 自風(1飜)
-        check_no19()                      # 断幺九
-        check_flat_win()                  # 平和(1飜)
-        check_1to9()                      # 一気通貫(2/1飜)
-        check_all_pons()                  # 対々和(2飜)
-        check_threes()                    # 大三元(役満) 小三元(2飜)
-        check_all19()                     # 清老頭(役満) 純全帯幺九(3/2飜) 混老頭(2飜) 混全帯幺九(2/1飜)
-        check_3pons_same_color()          # 三色同刻
-        check_3chows_same_color()         # 三色同順(2/1飜)
-        check_3kans()                     # 三槓子
-        check_multiple_same_chow()        # 二盃口(3飜) 一盃口(1飜)
-        check_pure_color()                # 清一色(6/5飜) 混一色(3/2飜)
-        check_pure_green()                # 緑一色
-        check_4ankans()                   # 四暗刻(役満)
-        check_four_honors()               # 小四喜(役満) 大四喜(役満)
-        check_all_characters()            # 字一色(役満)
-        check_9lotus()                    # 九蓮宝燈(役満)
+        check_all_single_one_nine()  # 国士無双(役満)
+        check_seven_pairs()  # 七対子(2飜)
+        check_win_type()  # 立直(1飜) 門前清自摸和(1飜)
+        check_dori()  # 役牌(1飜) 場風(1飜) 自風(1飜)
+        check_no19()  # 断幺九
+        check_flat_win()  # 平和(1飜)
+        check_1to9()  # 一気通貫(2/1飜)
+        check_all_pons()  # 対々和(2飜)
+        check_threes()  # 大三元(役満) 小三元(2飜)
+        check_all19()  # 清老頭(役満) 純全帯幺九(3/2飜) 混老頭(2飜) 混全帯幺九(2/1飜)
+        check_3pons_same_color()  # 三色同刻
+        check_3chows_same_color()  # 三色同順(2/1飜)
+        check_3kans()  # 三槓子
+        check_multiple_same_chow()  # 二盃口(3飜) 一盃口(1飜)
+        check_pure_color()  # 清一色(6/5飜) 混一色(3/2飜)
+        check_pure_green()  # 緑一色
+        check_4ankans()  # 四暗刻(役満)
+        check_four_honors()  # 小四喜(役満) 大四喜(役満)
+        check_all_characters()  # 字一色(役満)
+        check_9lotus()  # 九蓮宝燈(役満)
 
         return res['fan'], res['fan_desc'], res['maxi'], res['maxi_desc']
 
