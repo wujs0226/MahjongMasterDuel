@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from client.mahjong_meld import Meld
+import random
+
+from mahjong_meld import Meld
 from mahjong_tile import Tile
-
-
 
 
 class MahjongBoard:
@@ -11,13 +11,54 @@ class MahjongBoard:
     Walls = None  ## 4 Walls contains the Walls, in our game
     Wannpai = None  ## 王牌,latest 14 cards
     Rinshann = None  ## 岭上,latest 4 cards
-    Mountain = None
+    Kan_bonus_indicator = None
+    Kan_inside_bonus_indicator = None
     Rivers = None
     Hands = None
+    current_player = 0
+    expose_indicator_number = 1
+    current_step = {0: "draw", 1: "discard", 2: "reaction"}
 
     def __init__(self):
-        for i in range(36)
-        Walls = []
+        self.Walls = []
+        for i in range(136):
+            self.Walls.append(i)
+        random.shuffle(self.Walls)
+        self.Wannpai = self.Walls[-14:]
+        self.Walls = self.Walls[:-14]
+        self.Rinshann = self.Wannpai[:4]
+        self.Kan_bonus_indicator = [self.Wannpai[4:][i] for i in range(10) if i % 2 == 0]
+        self.Kan_inside_bonus_indicator = [self.Wannpai[4:][i] for i in range(10) if i % 2 == 1]
+        # todo: 修正发牌函数
+        self.Hands = []
+        self.Rivers = []
+        for i in range(4):
+            self.Rivers.append([])
+            self.Hands.append(self.Walls[:13])
+            self.Walls = self.Walls[13:]
+
+    def draw(self, player):
+        self.Hands[player].append(self.Walls[0])
+
+    def discard(self, player, no):
+        if no < 0:
+            print("player ", player, "declare win!")
+            #todo: finish 胡的流程
+        hand = self.Hands[player]
+        discard_tile = hand[no]
+        hand = hand[:no] + hand[no + 1:]
+        self.Hands[player] = hand
+        self.Rivers[player].append(discard_tile)
+
+    def print(self):
+        print("Hands:")
+        for i in range(4):
+            print("player ", i, "'s Hands:", Tile.t136_to_g(self.Hands[i]))
+        print("bonus_indicator:")
+        print(Tile.t136_to_g(self.Kan_bonus_indicator))
+        print(Tile.t136_to_g(self.Kan_inside_bonus_indicator))
+        print("Remain Walls:")
+        print(len(self.Walls), "tiles remain:", Tile.t136_to_g(self.Walls))
 
 
 class GameTable:
@@ -245,3 +286,8 @@ class GameTable:
         if len(self.get_player(3).discard34) > 0:
             return self.get_player(3).discard34[-1]
         return -1
+
+
+if __name__ == '__main__':
+    board = MahjongBoard()
+    board.print()
